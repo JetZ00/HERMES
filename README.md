@@ -50,8 +50,8 @@ Si se pincha el globo, recordemos cómo se inflaba; así, la vocación del infor
 Clonar el repositorio:
 
 ```bash
-git clone URL_DEL_REPOSITORIO
-cd NOMBRE_DE_LA_CARPETA
+git clone https://github.com/JetZ00/HERMES.git
+cd HERMES
 ```
 
 Crear un entorno virtual:
