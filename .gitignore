@@ -1,0 +1,25 @@
+
+# Entorno virtual
+mi_python/
+.venv/
+venv/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Informes generados por HERMES
+results/
+
+# Variables de entorno y secretos
+.env
+.env.*
+
+# Archivos del editor
+.vscode/
+.idea/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
