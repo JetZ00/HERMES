@@ -1,15 +1,18 @@
+
 import sys
 import dns.resolver
 import json
 from pathlib import Path
 from datetime import datetime, timezone
+from modules.rdap import consultar_rdap, extraer_informacion_rdap
+
 
 def validar_dominio(dominio):
   valido = True
 
   dominio = dominio.removesuffix(".")
   etiquetas = dominio.split(".")
-  
+
   if len(etiquetas) < 2:
     valido = False
 
@@ -29,37 +32,37 @@ def validar_dominio(dominio):
     if len(etiqueta) > 63:
       valido = False
 
-  return valido 
+  return valido
 
 
 def consultar_registro(dominio, tipo):
-    registros = []
-    estado = "ok"
+  registros = []
+  estado = "ok"
 
-    try:
-        respuesta = dns.resolver.resolve(dominio, tipo)
+  try:
+    respuesta = dns.resolver.resolve(dominio, tipo)
 
-        for registro in respuesta:
-            registros.append(registro.to_text())
+    for registro in respuesta:
+      registros.append(registro.to_text())
 
-    except dns.resolver.NXDOMAIN:
-        estado = "dominio_inexistente"
+  except dns.resolver.NXDOMAIN:
+    estado = "dominio_inexistente"
 
-    except dns.resolver.NoAnswer:
-        estado = "sin_registros"
+  except dns.resolver.NoAnswer:
+    estado = "sin_registros"
 
-    except dns.resolver.LifetimeTimeout:
-        estado = "timeout"
+  except dns.resolver.LifetimeTimeout:
+    estado = "timeout"
 
-    except dns.resolver.NoNameservers:
-        estado = "error_servidores_dns"
+  except dns.resolver.NoNameservers:
+    estado = "error_servidores_dns"
 
-    resultado = {
-        "estado": estado,
-        "registros": registros
-    }
+  resultado = {
+      "estado": estado,
+      "registros": registros
+  }
 
-    return resultado
+  return resultado
 
 
 def consultar_dns(dominio):
@@ -78,44 +81,68 @@ def consultar_dns(dominio):
 
   return resultados
 
+
 def guardar_json(datos, nombre_archivo):
-
-
   carpeta = Path("results")
   carpeta.mkdir(exist_ok=True)
 
   ruta_archivo = carpeta / f"{nombre_archivo}.json"
-  
+
   with open(ruta_archivo, "w", encoding="utf-8") as archivo:
     json.dump(datos, archivo, indent=4, ensure_ascii=False)
 
-# main.py
 
+# Programa principal
 if __name__ == "__main__":
-  if len(sys.argv)==2:
+
+  if len(sys.argv) == 2:
     dominio_objetivo = sys.argv[1]
 
     if validar_dominio(dominio_objetivo):
 
       print(f"""
       ===============================
-              HERMES v0.1
+              HERMES v0.2
                 OSINT TOOL
       ===============================
 
       [+] Sistema iniciado correctamente
-      
       [+] Objetivo: {dominio_objetivo}
       """)
-      
+
+      # DNS Intelligence
       informacion_dns_objetivo = consultar_dns(dominio_objetivo)
-      fecha = datetime.now(timezone.utc).isoformat(timespec="seconds")    
-      
+
+      # RDAP Intelligence
+      respuesta_rdap = consultar_rdap(dominio_objetivo)
+
+      if respuesta_rdap["estado"] == "ok":
+        informacion_rdap_objetivo = {
+            "estado": "ok",
+            "informacion": extraer_informacion_rdap(
+                respuesta_rdap["datos"]
+            )
+        }
+      else:
+        informacion_rdap_objetivo = {
+            "estado": respuesta_rdap["estado"],
+            "informacion": {}
+        }
+
+      # Fecha e informe
+      fecha = datetime.now(timezone.utc).isoformat(
+          timespec="seconds"
+      )
+
       informe = {
           "dominio": dominio_objetivo,
           "fecha_consulta": fecha,
-          "dns": informacion_dns_objetivo
+          "dns": informacion_dns_objetivo,
+          "rdap": informacion_rdap_objetivo
       }
+
+      # Mostrar resultados DNS
+      print("\n========== DNS Intelligence ==========")
 
       for descripcion, resultado in informacion_dns_objetivo.items():
         print(f"\n[+] {descripcion}:")
@@ -139,7 +166,35 @@ if __name__ == "__main__":
         elif estado == "error_servidores_dns":
           print("    Error de los servidores DNS")
 
-      guardar_json(informe,f"{dominio_objetivo}_informe")
+      # Mostrar resultados RDAP
+      print("\n========== RDAP Intelligence ==========")
+
+      if informacion_rdap_objetivo["estado"] == "ok":
+
+        datos_rdap = informacion_rdap_objetivo["informacion"]
+
+        print(f"\n[+] Dominio: {datos_rdap['dominio']}")
+        print(f"[+] Registrador: {datos_rdap['registrador']}")
+        print(f"[+] Fecha de creación: {datos_rdap['fecha_creacion']}")
+        print(f"[+] Fecha de expiración: {datos_rdap['fecha_expiracion']}")
+        print(f"[+] Última modificación: {datos_rdap['ultima_modificacion']}")
+
+        print("\n[+] Estados del dominio:")
+        for estado in datos_rdap["estados"]:
+          print(f"    {estado}")
+
+        print("\n[+] Servidores de nombres:")
+        for servidor in datos_rdap["servidores_dns"]:
+          print(f"    {servidor}")
+
+      else:
+        print(
+            f"[-] Consulta RDAP: "
+            f"{informacion_rdap_objetivo['estado']}"
+        )
+
+      # Guardar informe una sola vez
+      guardar_json(informe, f"{dominio_objetivo}_informe")
 
     else:
       print("ERROR: El dominio introducido no es válido")
@@ -148,5 +203,3 @@ if __name__ == "__main__":
   else:
     print("ERROR: Debes indicar exactamente un dominio")
     sys.exit(1)
-
-
