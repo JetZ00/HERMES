@@ -1,5 +1,5 @@
 
-# HERMES v0.1 — OSINT Tool
+# HERMES v0.2 — OSINT Tool
 
   **Autor:** Manuel Mera ([@JetZ00](https://github.com/JetZ00))  
   **Formación:** Estudiante de Ingeniería del Software — Universidad de Málaga   
