@@ -1,6 +1,7 @@
 
 import unittest
-from main import validar_dominio
+from modules.validation import validar_dominio
+
 
 class TestValidacion(unittest.TestCase):
 
@@ -36,7 +37,12 @@ class TestValidacion(unittest.TestCase):
         self.assertFalse(validar_dominio(dominio))
 
     def test_dominio_demasiado_largo(self):
-        dominio = "a" * 63 + "." + "b" * 63 + "." + "c" * 63 + "." + "d" * 62 + ".com"
+        dominio = (
+            "a" * 63 + "." +
+            "b" * 63 + "." +
+            "c" * 63 + "." +
+            "d" * 62 + ".com"
+        )
         self.assertFalse(validar_dominio(dominio))
 
 

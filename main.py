@@ -1,10 +1,11 @@
 
 import sys
-import dns.resolver
-import json
-from pathlib import Path
 from datetime import datetime, timezone
+
+from modules.dns import consultar_dns
 from modules.rdap import consultar_rdap, extraer_informacion_rdap
+from modules.validation import validar_dominio
+from modules.reports import guardar_json
 
 
 def validar_dominio(dominio):
@@ -33,64 +34,6 @@ def validar_dominio(dominio):
       valido = False
 
   return valido
-
-
-def consultar_registro(dominio, tipo):
-  registros = []
-  estado = "ok"
-
-  try:
-    respuesta = dns.resolver.resolve(dominio, tipo)
-
-    for registro in respuesta:
-      registros.append(registro.to_text())
-
-  except dns.resolver.NXDOMAIN:
-    estado = "dominio_inexistente"
-
-  except dns.resolver.NoAnswer:
-    estado = "sin_registros"
-
-  except dns.resolver.LifetimeTimeout:
-    estado = "timeout"
-
-  except dns.resolver.NoNameservers:
-    estado = "error_servidores_dns"
-
-  resultado = {
-      "estado": estado,
-      "registros": registros
-  }
-
-  return resultado
-
-
-def consultar_dns(dominio):
-  resultados = {}
-
-  tipos = {
-      "A": "Direcciones IPv4",
-      "AAAA": "Direcciones IPv6",
-      "MX": "Servidores de correo",
-      "NS": "Servidores DNS",
-      "TXT": "Registros TXT"
-  }
-
-  for tipo, descripcion in tipos.items():
-    resultados[descripcion] = consultar_registro(dominio, tipo)
-
-  return resultados
-
-
-def guardar_json(datos, nombre_archivo):
-  carpeta = Path("results")
-  carpeta.mkdir(exist_ok=True)
-
-  ruta_archivo = carpeta / f"{nombre_archivo}.json"
-
-  with open(ruta_archivo, "w", encoding="utf-8") as archivo:
-    json.dump(datos, archivo, indent=4, ensure_ascii=False)
-
 
 # Programa principal
 if __name__ == "__main__":

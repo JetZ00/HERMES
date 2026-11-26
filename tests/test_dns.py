@@ -3,12 +3,12 @@ import unittest
 import dns.resolver
 
 from unittest.mock import patch, MagicMock
-from main import consultar_registro, consultar_dns
+from modules.dns import consultar_registro, consultar_dns
 
 
 class TestDNS(unittest.TestCase):
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_consulta_ipv4(self, mock_resolve):
         registro = MagicMock()
         registro.to_text.return_value = "192.0.2.1"
@@ -23,7 +23,7 @@ class TestDNS(unittest.TestCase):
         mock_resolve.assert_called_once_with("example.com", "A")
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_varios_registros_ipv4(self, mock_resolve):
         registro1 = MagicMock()
         registro1.to_text.return_value = "192.0.2.1"
@@ -42,7 +42,7 @@ class TestDNS(unittest.TestCase):
         )
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_registros_mx(self, mock_resolve):
         registro = MagicMock()
         registro.to_text.return_value = "10 mail.example.com."
@@ -55,7 +55,7 @@ class TestDNS(unittest.TestCase):
         self.assertEqual(resultado["registros"], ["10 mail.example.com."])
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_dominio_inexistente(self, mock_resolve):
         mock_resolve.side_effect = dns.resolver.NXDOMAIN()
 
@@ -65,7 +65,7 @@ class TestDNS(unittest.TestCase):
         self.assertEqual(resultado["registros"], [])
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_sin_registros_ipv6(self, mock_resolve):
         mock_resolve.side_effect = dns.resolver.NoAnswer()
 
@@ -75,7 +75,7 @@ class TestDNS(unittest.TestCase):
         self.assertEqual(resultado["registros"], [])
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_error_servidores_dns(self, mock_resolve):
         mock_resolve.side_effect = dns.resolver.NoNameservers()
 
@@ -85,7 +85,7 @@ class TestDNS(unittest.TestCase):
         self.assertEqual(resultado["registros"], [])
 
 
-    @patch("main.dns.resolver.resolve")
+    @patch("modules.dns.dns.resolver.resolve")
     def test_timeout_dns(self, mock_resolve):
         mock_resolve.side_effect = dns.resolver.LifetimeTimeout()
 
@@ -95,7 +95,7 @@ class TestDNS(unittest.TestCase):
         self.assertEqual(resultado["registros"], [])
 
 
-    @patch("main.consultar_registro")
+    @patch("modules.dns.consultar_registro")
     def test_consultar_todos_los_tipos(self, mock_consultar):
         mock_consultar.return_value = {
             "estado": "ok",
