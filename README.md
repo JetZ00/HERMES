@@ -1,9 +1,8 @@
 
 # HERMES v0.1 — OSINT Tool
 
-  **Autor:** Manuel Mera ([@JetZ0](https://github.com/JetZ00))  
-  **Formación:** Estudiante de Ingeniería del Software — Universidad de Málaga  
-  **Colaborador:** Un amable asistente de IA, ChatGPT (GPT-6)  
+  **Autor:** Manuel Mera ([@JetZ00](https://github.com/JetZ00))  
+  **Formación:** Estudiante de Ingeniería del Software — Universidad de Málaga   
   **Tipo:** Proyecto personal y educativo  
   **Tecnología:** Python
 
@@ -71,6 +70,51 @@ Instalar las dependencias:
 ```bash
 python -m pip install -r requirements.txt
 ```
+### Problemas de activación del entorno virtual en Windows
+
+En algunos equipos Windows, PowerShell puede impedir la activación del entorno virtual porque la ejecución de scripts está deshabilitada.
+
+Al ejecutar:
+
+```powershell
+.\mi_python\Scripts\Activate.ps1
+```
+
+Puede aparecer el siguiente error:
+
+```text
+PSSecurityException: UnauthorizedAccess
+La ejecución de scripts está deshabilitada en este sistema.
+```
+
+**Solución 1: Permitir temporalmente la ejecución de scripts**
+
+En PowerShell, ejecutar:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Después, activar nuevamente el entorno virtual:
+
+```powershell
+.\mi_python\Scripts\Activate.ps1
+```
+
+Este cambio afecta únicamente a la sesión actual de PowerShell. Al cerrar la terminal, deja de aplicarse. Se recomienda utilizarlo únicamente con scripts de confianza.
+
+**Solución 2: Ejecutar HERMES sin activar el entorno virtual (recomendada)**
+
+No es obligatorio activar el entorno virtual para utilizarlo. Podemos ejecutar directamente su intérprete de Python:
+
+```powershell
+.\mi_python\Scripts\python.exe -m pip install -r requirements.txt
+.\mi_python\Scripts\python.exe main.py google.com
+```
+
+Esta opción permite instalar las dependencias y ejecutar HERMES sin modificar la política de ejecución de PowerShell.
+
+**Nota:** Este comportamiento es una restricción de PowerShell, no un error del código de HERMES. Su activación y compatibilidad con diferentes entornos Windows podrán revisarse en futuras versiones.
 
 ## Uso
 
