@@ -40,6 +40,17 @@ Si se pincha el globo, recordemos cómo se inflaba; así, la vocación del infor
   - Exportación de resultados a JSON.
   - Fecha de consulta en UTC.
 
+  ### RDAP Intelligence
+
+- Descubrimiento automático de servidores RDAP mediante el registro oficial de IANA.
+- Consulta de información pública de registro de dominios.
+- Identificación del registrador.
+- Obtención de fechas de creación, expiración y última modificación, cuando estén disponibles.
+- Consulta de estados del dominio.
+- Identificación de servidores de nombres.
+- Gestión básica de errores HTTP y de conexión.
+- Integración de los resultados RDAP y DNS en un único informe JSON.
+
 ## Requisitos
 - Python 3.10 o superior.
 - Biblioteca dnspython.
